@@ -26,8 +26,8 @@ const RichText: React.FC<Props> = ({
         {
           'container ': enableGutter,
           'max-w-none': !enableGutter,
-          // dh-prose adds the marketing site's growing blue link highlight.
-          'mx-auto prose dh-prose': enableProse,
+          // article-prose is the main site's .cms-article-content rule set.
+          'mx-auto article-prose': enableProse,
         },
         className,
       )}

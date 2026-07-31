@@ -24,13 +24,14 @@ export default {
     'bg-warning/30',
   ],
   theme: {
-    // Matches digital-horizon.io's .container: 1280px max, 48px gutters
-    // dropping to 24px under 768px.
+    // Matches 2ahealthylife.com's .container-page: max-w-7xl with
+    // px-5 sm:px-8 lg:px-12 gutters.
     container: {
       center: true,
       padding: {
-        DEFAULT: '1.5rem',
-        md: '3rem',
+        DEFAULT: '1.25rem',
+        sm: '2rem',
+        lg: '3rem',
       },
       screens: {
         '2xl': '80rem',
@@ -89,8 +90,8 @@ export default {
         warning: 'hsl(var(--warning))',
       },
       fontFamily: {
-        mono: ['var(--font-mono)', 'monospace'],
-        sans: ['var(--font-sans)', 'sans-serif'],
+        display: ['var(--font-display)', 'Georgia', 'serif'],
+        sans: ['var(--font-body)', 'sans-serif'],
       },
       keyframes: {
         'accordion-down': {
@@ -102,46 +103,6 @@ export default {
           to: { height: '0' },
         },
       },
-      // Article prose, tuned to digital-horizon.io: 1.65 line-height, a ~58ch
-      // measure and the same ultralight/tight headline treatment. The template
-      // pointed these at `var(--text)`, a variable that is never defined.
-      typography: () => ({
-        DEFAULT: {
-          css: {
-            '--tw-prose-body': 'hsl(var(--foreground))',
-            '--tw-prose-headings': 'hsl(var(--foreground))',
-            '--tw-prose-bold': 'hsl(var(--foreground))',
-            '--tw-prose-quotes': 'var(--ink-soft)',
-            '--tw-prose-quote-borders': 'var(--dusk)',
-            // 60-70 characters is the zone Baymard, Smashing and WCAG 1.4.8
-            // all overlap on; ch units self-correct for Urbanist's narrow set.
-            maxWidth: '68ch',
-            fontSize: '19px',
-            lineHeight: '1.65',
-            h1: {
-              fontSize: 'clamp(38px, 5vw, 58px)',
-              fontWeight: '200',
-              letterSpacing: '-0.02em',
-              lineHeight: '1.06',
-              marginBottom: '0.25em',
-            },
-            h2: {
-              fontSize: 'clamp(28px, 3.4vw, 40px)',
-              fontWeight: '200',
-              letterSpacing: '-0.015em',
-              lineHeight: '1.12',
-            },
-            h3: {
-              fontSize: 'clamp(22px, 2.4vw, 28px)',
-              fontWeight: '500',
-              letterSpacing: '-0.015em',
-            },
-            'h1 strong, h2 strong, h3 strong': {
-              fontWeight: '600',
-            },
-          },
-        },
-      }),
     },
   },
 }
