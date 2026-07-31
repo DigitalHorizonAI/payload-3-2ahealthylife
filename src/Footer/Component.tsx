@@ -1,58 +1,103 @@
-import { getCachedGlobal } from '@/utilities/getGlobals'
 import Link from 'next/link'
 import React from 'react'
 
-import type { Footer } from '@/payload-types'
-
-import { CMSLink } from '@/components/Link'
 import { Logo } from '@/components/Logo/Logo'
-import { SITE } from '@/utilities/site'
+import {
+  BUSINESS_DETAILS,
+  FOOTER_BLURB,
+  FOOTER_COMPANY,
+  FOOTER_EMAIL,
+  FOOTER_SHOP,
+  SITE,
+  type NavLink,
+} from '@/site'
 
-// Light footer with a hairline rule, matching digital-horizon.io's .footer —
-// the template's black bar read as a different site. The theme switcher is gone
-// with it: the site is light-only.
-export async function Footer() {
-  const footer: Footer = await getCachedGlobal('footer', 1)()
+/**
+ * The main site's footer, ported from seo-2ahealthylife's Layout.tsx. Like
+ * the header, it is code-owned (src/site.ts) and deliberately NOT read from
+ * the Payload `footer` global — editing navItems in the CMS has no effect.
+ */
 
-  const navItems = footer?.navItems || []
+const FooterLink: React.FC<{ link: NavLink }> = ({ link }) => {
+  const className = 'text-sm text-muted-foreground hover:text-foreground transition-colors'
+  return link.href.startsWith('/') ? (
+    <Link href={link.href} className={className}>
+      {link.label}
+    </Link>
+  ) : (
+    <a href={link.href} className={className}>
+      {link.label}
+    </a>
+  )
+}
 
+export function Footer() {
   return (
-    <footer className="pt-14 pb-10">
-      <div className="container">
-        <div className="flex flex-wrap items-start justify-between gap-10">
-          <div className="flex flex-col gap-4">
-            <Link className="flex items-center" href="/">
-              <Logo />
-            </Link>
-            <p className="max-w-[280px] text-sm leading-relaxed text-muted-foreground">
-              {SITE.description}
-            </p>
+    <footer className="border-t border-border">
+      <div className="container py-16 lg:py-20">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 lg:gap-12">
+          <div className="lg:col-span-2">
+            <a href={SITE} className="inline-block mb-5" aria-label="2ahealthylife home">
+              <Logo className="text-xl" />
+            </a>
+            <p className="text-sm text-muted-foreground leading-relaxed max-w-xs">{FOOTER_BLURB}</p>
           </div>
 
-          <nav className="flex flex-col gap-3 text-sm">
-            {navItems.map(({ link }, i) => {
-              return (
-                <CMSLink
-                  className="text-muted-foreground transition-colors hover:text-foreground"
-                  key={i}
-                  {...link}
-                />
-              )
-            })}
-          </nav>
+          <div>
+            <h4 className="nav-link text-foreground mb-4">Shop</h4>
+            <ul className="space-y-3">
+              {FOOTER_SHOP.map((link) => (
+                <li key={link.href}>
+                  <FooterLink link={link} />
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div>
+            <h4 className="nav-link text-foreground mb-4">Company</h4>
+            <ul className="space-y-3">
+              {FOOTER_COMPANY.map((link) => (
+                <li key={link.href}>
+                  <FooterLink link={link} />
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div>
+            <h4 className="nav-link text-foreground mb-4">Get in Touch</h4>
+            <ul className="space-y-3">
+              <li>
+                <span className="text-xs tracking-[0.1em] uppercase text-muted-foreground/70">
+                  Email
+                </span>
+                <br />
+                <a
+                  href={`mailto:${FOOTER_EMAIL}`}
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  {FOOTER_EMAIL}
+                </a>
+              </li>
+            </ul>
+
+            <h4 className="nav-link text-foreground mt-8 mb-4">Business Details</h4>
+            <ul className="space-y-2 text-sm text-muted-foreground leading-relaxed">
+              {BUSINESS_DETAILS.map((line) => (
+                <li key={line}>{line}</li>
+              ))}
+            </ul>
+          </div>
         </div>
 
-        <div className="mt-14 flex flex-wrap justify-between gap-4 border-t border-border pt-6 text-xs font-medium text-muted-foreground">
-          <span>
-            © {new Date().getFullYear()} {SITE.name}
-          </span>
-          <a
-            className="transition-colors hover:text-foreground"
-            href="https://2ahealthylife.com"
-            rel="noreferrer"
-          >
-            2ahealthylife.com
-          </a>
+        <div className="mt-14 pt-8 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-4">
+          <p className="text-xs text-muted-foreground tracking-wide">
+            © {new Date().getFullYear()} 2ahealthylife. All rights reserved.
+          </p>
+          <p className="text-xs text-muted-foreground tracking-wide">
+            Formulated in Europe · Third-party tested
+          </p>
         </div>
       </div>
     </footer>

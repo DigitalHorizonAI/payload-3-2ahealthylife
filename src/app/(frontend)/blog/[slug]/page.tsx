@@ -57,16 +57,14 @@ export default async function Post({ params: paramsPromise }: Args) {
 
       <PostHero post={post} />
 
-      <div className="flex flex-col items-center gap-4 pt-14">
-        <div className="container">
-          <RichText className="max-w-[48rem] mx-auto" content={post.content} enableGutter={false} />
-          {post.relatedPosts && post.relatedPosts.length > 0 && (
-            <RelatedPosts
-              className="mt-12 max-w-[52rem] lg:grid lg:grid-cols-subgrid col-start-1 col-span-3 grid-rows-[2fr]"
-              docs={post.relatedPosts.filter((post) => typeof post === 'object')}
-            />
-          )}
-        </div>
+      <div className="container">
+        <RichText className="max-w-2xl mx-auto" content={post.content} enableGutter={false} />
+        {post.relatedPosts && post.relatedPosts.length > 0 && (
+          <RelatedPosts
+            className="max-w-2xl mx-auto mt-14 pt-8 border-t border-border"
+            docs={post.relatedPosts.filter((post) => typeof post === 'object')}
+          />
+        )}
       </div>
     </article>
   )

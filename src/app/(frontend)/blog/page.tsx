@@ -2,9 +2,7 @@ import type { Metadata } from 'next/types'
 import { SITE } from '@/utilities/site'
 import { getPublicSiteURL } from '@/utilities/getURL'
 
-import { BlogSheet } from '@/components/BlogSheet'
 import { CollectionArchive } from '@/components/CollectionArchive'
-import { Reveal } from '@/components/Motion/Reveal'
 import { PageRange } from '@/components/PageRange'
 import { Pagination } from '@/components/Pagination'
 import configPromise from '@payload-config'
@@ -28,28 +26,24 @@ export default async function Page() {
       slug: true,
       categories: true,
       meta: true,
+      publishedAt: true,
     },
   })
 
   return (
     <div className="pb-28 pt-10 md:pt-14">
       <PageClient />
-      <div className="container mb-14">
-        <BlogSheet>
-          <Reveal as="p" className="dh-kicker">
-            Insights
-          </Reveal>
-          <Reveal as="h1" className="dh-display mt-5 text-[clamp(44px,6.6vw,88px)]" delay={1}>
-            The <strong>2ahealthylife</strong> blog
-          </Reveal>
-          <Reveal as="p" className="dh-lead mt-6" delay={2}>
-            Notes on AI automation, voice agents and the systems we build for growing businesses.
-          </Reveal>
-          <Reveal className="dh-pill mt-8" delay={3}>
-            <span className="dh-pulse-dot" />
-            Writing from live client work
-          </Reveal>
-        </BlogSheet>
+      {/* The main site's Journal header, copy and all (its BlogPage.tsx). */}
+      <div className="container mb-12">
+        <p className="text-xs tracking-[0.2em] uppercase text-muted-foreground mb-3">
+          The Journal
+        </p>
+        <h1 className="editorial-heading text-3xl sm:text-4xl text-foreground mb-3">
+          Evidence-Based Wellness
+        </h1>
+        <p className="text-muted-foreground max-w-2xl leading-relaxed">
+          Expert guides on supplements, nutrition, and daily wellness practices.
+        </p>
       </div>
 
       <div className="container mb-8">
@@ -61,7 +55,7 @@ export default async function Page() {
         />
       </div>
 
-      <CollectionArchive featured posts={posts.docs} />
+      <CollectionArchive posts={posts.docs} />
 
       <div className="container">
         {posts.totalPages > 1 && posts.page && (

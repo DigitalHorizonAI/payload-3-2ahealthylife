@@ -3,119 +3,55 @@
 @tailwind utilities;
 
 @layer base {
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
-    font-size: auto;
-    font-weight: auto;
-  }
-
   /*
-   * The digital-horizon.io palette, ported from that site's src/styles.css.
+   * The 2ahealthylife.com palette, copied verbatim from the main site's
+   * src/index.css (seo-2ahealthylife repo) so the blog reads as part of the
+   * site: warm paper ground, near-black ink, hairline borders doing the
+   * structural work, and a muted green reserved for success states.
    * Tailwind wraps every one of these in hsl(), so they must stay as bare
    * HSL triplets — a hex value here silently produces no colour at all.
-   *
-   *   --white #ffffff  --night #1a1a1a  --air #fafafa   --dusk/--flare #5c9cff
-   *   --dawn  #ffb35c  --ink-soft #4c4c4c  --ink-faint #707070
-   *   --line  #e6e6e6  --line-strong #dcdcdc
    */
   :root {
-    --background: 0 0% 100%; /* #ffffff */
-    --foreground: 0 0% 10%; /* #1a1a1a --night */
+    --background: 40 25% 97%; /* #F9F6F0 warm paper */
+    --foreground: 30 10% 12%; /* #211F1C ink */
 
-    --card: 0 0% 98%; /* #fafafa --air */
-    --card-foreground: 0 0% 10%;
+    --card: 40 20% 99%;
+    --card-foreground: 30 10% 12%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 10%;
+    --popover: 40 20% 99%;
+    --popover-foreground: 30 10% 12%;
 
-    --primary: 0 0% 10%; /* buttons are --night, like the site's .btn-primary */
-    --primary-foreground: 0 0% 100%;
+    --primary: 30 10% 12%;
+    --primary-foreground: 40 25% 97%;
 
-    --secondary: 0 0% 96%;
-    --secondary-foreground: 0 0% 10%;
+    --secondary: 35 20% 93%;
+    --secondary-foreground: 30 10% 12%;
 
-    --muted: 0 0% 96%;
-    --muted-foreground: 0 0% 44%; /* #707070 --ink-faint, 4.95:1 on white */
+    --muted: 35 15% 92%;
+    --muted-foreground: 30 8% 46%; /* #7E7770 */
 
-    --accent: 217 100% 68%; /* #5c9cff --dusk */
-    --accent-foreground: 0 0% 100%;
+    /* Muted green. The main site uses it only as a success/positive accent
+       (coupons, in-stock, confirmations) — never as a brand colour. */
+    --accent: 145 20% 38%; /* #4E7A5F */
+    --accent-foreground: 40 25% 97%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 100%;
+    --destructive: 0 60% 50%;
+    --destructive-foreground: 40 25% 97%;
 
-    --border: 0 0% 90%; /* #e6e6e6 --line */
-    --input: 0 0% 86%; /* #dcdcdc --line-strong */
-    --ring: 221 83% 53%; /* --blue-ink; --dusk is only 2.74:1 and fails 1.4.11 */
+    --border: 35 15% 88%; /* #E5DFD7 */
+    --input: 35 15% 88%;
+    --ring: 30 10% 12%;
 
-    /* 10px, the site's button/input radius. Cards ask for 26px explicitly —
-       driving them from here would also round every input to 26px. */
-    --radius: 0.625rem;
+    /* 4px — effectively square. The design uses borders, not rounding. */
+    --radius: 0.25rem;
 
     --success: 196 52% 74%;
     --warning: 34 89% 85%;
     --error: 10 100% 86%;
 
-    /* Site tokens with no shadcn equivalent, used directly by components. */
-    --ink-soft: #4c4c4c;
-
-    /*
-     * The brand blue splits in two. #5c9cff is 2.74:1 on white — it fails AA
-     * for text (4.5:1) and even the 3:1 floor for focus rings and borders
-     * (WCAG 1.4.11), so it may only be decorative: fills, washes, gradients,
-     * rules 3px and thicker, or text sitting on a dark surface.
-     * Anything that carries meaning uses --blue-ink (5.17:1), same hue family.
-     */
-    --dusk: #5c9cff;
-    --blue-ink: #2563eb;
-
-    /*
-     * #707070 clears AA at 16px and up, but the mono meta on cards and article
-     * headers runs at 11-13px, where it doesn't hold. 7.0:1.
-     */
-    --ink-small: #595959;
-
-    --dawn: #ffb35c;
-    --shadow-card: 0 12px 32px rgba(26, 26, 26, 0.06);
-    --shadow-float: 0 24px 60px rgba(26, 26, 26, 0.07);
-    --ease-site: cubic-bezier(0.22, 1, 0.36, 1);
-  }
-
-  [data-theme='dark'] {
-    --background: 0 0% 0%;
-    --foreground: 210 40% 98%;
-
-    --card: 0 0% 4%;
-    --card-foreground: 210 40% 98%;
-
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 0, 0%, 15%, 0.5;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-
-    --success: 196 100% 14%;
-    --warning: 34 51% 25%;
-    --error: 10 39% 43%;
+    /* Fed by next/font in the frontend layout. */
+    --font-display: var(--font-cormorant), Georgia, serif;
+    --font-body: var(--font-dm-sans), sans-serif;
   }
 }
 
@@ -125,29 +61,24 @@
   }
   body {
     @apply bg-background text-foreground;
-  }
-}
-
-/*
- * Signature details lifted from digital-horizon.io so the blog doesn't just
- * share a palette but actually feels like the same site.
- */
-@layer base {
-  body {
     -webkit-font-smoothing: antialiased;
   }
-
-  ::selection {
-    background: rgba(92, 156, 255, 0.18);
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-display);
+    font-weight: 500;
   }
 
   /*
-   * Keyboard focus only, so a mouse click doesn't leave a ring. 2px at 3:1
-   * with an offset, which is what makes it visible on white and on the
-   * off-white cards alike (WCAG 2.4.13).
+   * Keyboard focus only, so a mouse click doesn't leave a ring. The site's
+   * ring token is the ink colour, visible on paper and card alike.
    */
   :focus-visible {
-    outline: 2px solid var(--blue-ink);
+    outline: 2px solid hsl(var(--ring));
     outline-offset: 3px;
     border-radius: 2px;
   }
@@ -165,329 +96,110 @@
   input,
   textarea,
   select {
-    scroll-margin-top: 6rem;
+    scroll-margin-top: 7rem;
   }
 }
 
 @layer components {
-  /* The site's headline voice: ultralight, tight, with a bold span for emphasis. */
-  .dh-display {
-    font-weight: 200;
+  /* The site's headline voice: display serif, tight, calm. */
+  .editorial-heading {
+    font-family: var(--font-display);
     letter-spacing: -0.02em;
-    line-height: 1.05;
+    line-height: 1.1;
   }
 
-  .dh-display strong,
-  .dh-display b {
-    font-weight: 600;
-  }
-
-  /* Space Mono kicker above section headings. */
-  .dh-kicker {
-    font-family: var(--font-mono), monospace;
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.14em;
+  /* Uppercase micro-type used for nav links, labels, chips and buttons. */
+  .nav-link {
+    font-family: var(--font-body);
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.15em;
     text-transform: uppercase;
-    color: var(--blue-ink);
   }
 
-  /* Mono meta under 16px — dates, labels, captions. */
-  .dh-meta {
-    font-family: var(--font-mono), monospace;
-    font-size: 11px;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--ink-small);
+  /* Article prose — the main site's .cms-article-content rules, verbatim. */
+  .article-prose {
+    @apply text-muted-foreground leading-relaxed;
+  }
+  .article-prose h2 {
+    font-family: var(--font-display);
+    @apply text-2xl text-foreground mt-12 mb-4 leading-tight;
+  }
+  .article-prose h3 {
+    font-family: var(--font-display);
+    @apply text-xl text-foreground mt-8 mb-3 leading-snug;
+  }
+  .article-prose p {
+    @apply mb-5 leading-relaxed;
+  }
+  .article-prose a {
+    @apply text-foreground underline underline-offset-4 decoration-foreground/40 hover:decoration-foreground transition-colors font-medium;
+  }
+  .article-prose strong {
+    @apply font-semibold text-foreground;
+  }
+  .article-prose ul,
+  .article-prose ol {
+    @apply pl-6 mb-5 space-y-2;
+  }
+  .article-prose ul {
+    @apply list-disc;
+  }
+  .article-prose ol {
+    @apply list-decimal;
+  }
+  .article-prose li {
+    @apply leading-relaxed;
+  }
+  .article-prose img {
+    @apply w-full rounded-sm my-8 aspect-[16/9] object-cover;
+  }
+  .article-prose figure {
+    @apply my-8;
+  }
+  .article-prose figure img {
+    @apply my-0;
+  }
+  .article-prose figcaption {
+    @apply text-sm text-muted-foreground mt-2 text-center;
+  }
+  .article-prose blockquote {
+    @apply border-l-2 border-border pl-5 my-6 italic text-foreground/80;
+  }
+  .article-prose table {
+    @apply w-full my-8 text-sm;
+  }
+  .article-prose thead {
+    @apply border-b border-border;
+  }
+  .article-prose th {
+    @apply text-left py-3 px-4 font-semibold text-foreground text-xs tracking-[0.1em] uppercase;
+  }
+  .article-prose td {
+    @apply py-3 px-4 border-b border-border;
+  }
+  .article-prose hr {
+    @apply my-10 border-border;
+  }
+  .article-prose br {
+    @apply hidden;
   }
 
-  .dh-lead {
-    font-size: 18px;
-    line-height: 1.65;
-    color: var(--ink-soft);
-    max-width: 560px;
-  }
-
-  /* Blue highlight that grows under prose links, as on the marketing site. */
-  .dh-prose a:not(.not-prose) {
-    text-decoration: none;
-    background-image: linear-gradient(0deg, rgba(92, 156, 255, 0.22), rgba(92, 156, 255, 0.22));
-    background-repeat: no-repeat;
-    background-size: 100% 0.42em;
-    background-position: 0 88%;
-    transition: background-size 0.3s var(--ease-site);
-  }
-
-  .dh-prose a:not(.not-prose):hover {
-    background-size: 100% 100%;
-  }
-}
-
-/*
- * ===========================================================================
- * Option C — the brand-forward layer, ported from
- * C:\Dev\digital-horizon\blog-design-options\option-c.html (the mockup Bas
- * approved). Everything below is decoration: the page reads correctly with
- * all of it stripped out.
- * ===========================================================================
- */
-@layer components {
-  /* ---------- the sheet: halftone dots, roaming scanner, drifting blobs ---------- */
-  .dh-sheet {
-    position: relative;
-    border-radius: 28px;
-    border: 1px solid rgba(26, 26, 26, 0.08);
-    background: #eef3f8;
-    overflow: hidden;
-    /* Keeps the ::after scanner's mask from compositing against the page. */
-    isolation: isolate;
-  }
-
-  .dh-sheet-inner {
-    position: relative;
-    z-index: 3;
-    padding: 96px 56px 84px;
-  }
-
-  @media (max-width: 768px) {
-    .dh-sheet-inner {
-      padding: 64px 26px 56px;
-    }
-  }
-
-  .dh-sheet::before {
-    content: '';
-    position: absolute;
-    inset: -10%;
-    z-index: 1;
-    background-image: radial-gradient(circle, rgba(26, 26, 26, 0.2) 1px, transparent 1.4px);
-    background-size: 7px 7px;
-    animation: dh-dots-drift 14s linear infinite;
-    /* Fades the dots out of the middle so the headline stays legible. */
-    -webkit-mask-image: radial-gradient(ellipse 75% 65% at 50% 45%, transparent 30%, #000 100%);
-    mask-image: radial-gradient(ellipse 75% 65% at 50% 45%, transparent 30%, #000 100%);
-    pointer-events: none;
-  }
-
-  @keyframes dh-dots-drift {
-    from {
-      background-position: 0 0;
-    }
-    to {
-      background-position: 84px 56px;
-    }
-  }
-
-  /* The blue-dot scanner: the same dot field, revealed through a roaming hole. */
-  .dh-sheet::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    z-index: 2;
-    background-image: radial-gradient(circle, rgba(92, 156, 255, 0.6) 1px, transparent 1.4px);
-    background-size: 7px 7px;
-    -webkit-mask-image: radial-gradient(
-      circle closest-side,
-      #000 0%,
-      rgba(0, 0, 0, 0.5) 55%,
-      transparent 72%
-    );
-    mask-image: radial-gradient(
-      circle closest-side,
-      #000 0%,
-      rgba(0, 0, 0, 0.5) 55%,
-      transparent 72%
-    );
-    -webkit-mask-size: 560px 560px;
-    mask-size: 560px 560px;
-    -webkit-mask-repeat: no-repeat;
-    mask-repeat: no-repeat;
-    animation: dh-scan-roam 13s ease-in-out infinite;
-    pointer-events: none;
-  }
-
-  @keyframes dh-scan-roam {
-    0% {
-      -webkit-mask-position: 6% 14%;
-      mask-position: 6% 14%;
-    }
-    22% {
-      -webkit-mask-position: 78% 8%;
-      mask-position: 78% 8%;
-    }
-    45% {
-      -webkit-mask-position: 88% 78%;
-      mask-position: 88% 78%;
-    }
-    64% {
-      -webkit-mask-position: 38% 92%;
-      mask-position: 38% 92%;
-    }
-    84% {
-      -webkit-mask-position: 4% 55%;
-      mask-position: 4% 55%;
-    }
-    100% {
-      -webkit-mask-position: 6% 14%;
-      mask-position: 6% 14%;
-    }
-  }
-
-  .dh-blobs {
-    position: absolute;
-    inset: 0;
-    z-index: 0;
-    overflow: hidden;
-    pointer-events: none;
-  }
-
-  .dh-blob {
-    position: absolute;
-    width: 38vw;
-    height: 38vw;
-    border-radius: 50%;
-    filter: blur(60px);
-  }
-
-  .dh-blob-a {
-    top: -18%;
-    left: -6%;
-    background: rgba(125, 180, 255, 0.32);
-    animation: dh-blob-a 9s ease-in-out infinite alternate;
-  }
-
-  .dh-blob-b {
-    bottom: -26%;
-    right: -8%;
-    background: rgba(92, 156, 255, 0.18);
-    animation: dh-blob-b 12s ease-in-out infinite alternate;
-  }
-
-  .dh-blob-c {
-    top: 14%;
-    right: 18%;
-    background: rgba(140, 210, 255, 0.26);
-    animation: dh-blob-c 10s ease-in-out infinite alternate;
-  }
-
-  @keyframes dh-blob-a {
-    from {
-      transform: translate(0, 0) scale(1);
-    }
-    to {
-      transform: translate(16vw, 12vh) scale(1.3);
-    }
-  }
-
-  @keyframes dh-blob-b {
-    from {
-      transform: translate(0, 0) scale(1.15);
-    }
-    to {
-      transform: translate(-14vw, 16vh) scale(0.85);
-    }
-  }
-
-  @keyframes dh-blob-c {
-    from {
-      transform: translate(0, 0) scale(1);
-    }
-    to {
-      transform: translate(12vw, -14vh) scale(1.35);
-    }
-  }
-
-  /* ---------- cursor glow (the marketing site's signature) ---------- */
-  .dh-cursor-glow {
-    position: fixed;
-    inset: 0;
-    z-index: 90;
-    pointer-events: none;
-    will-change: background;
-    background: radial-gradient(
-      420px circle at var(--mx, -600px) var(--my, -600px),
-      rgba(92, 156, 255, 0.07),
-      rgba(92, 156, 255, 0.025) 45%,
-      transparent 70%
-    );
-  }
-
-  @media (max-width: 900px), (pointer: coarse) {
-    .dh-cursor-glow {
-      display: none;
-    }
-  }
-
-  /* ---------- status pill ---------- */
-  .dh-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 9px;
-    padding: 9px 16px;
-    border-radius: 999px;
-    background: rgba(255, 255, 255, 0.82);
-    border: 1px solid rgba(26, 26, 26, 0.08);
-    font-size: 13px;
-    color: var(--ink-soft);
-  }
-
-  .dh-pulse-dot {
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    background: var(--dusk);
-    animation: dh-pulse 2s ease-in-out infinite;
-    flex: none;
-  }
-
-  @keyframes dh-pulse {
-    0%,
-    100% {
-      opacity: 1;
-      box-shadow: 0 0 0 0 rgba(92, 156, 255, 0.4);
-    }
-    50% {
-      opacity: 0.6;
-      box-shadow: 0 0 0 5px rgba(92, 156, 255, 0);
-    }
-  }
-
-  /* ---------- card gradient top-rule ---------- */
-  .dh-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 3px;
-    z-index: 2;
-    background: linear-gradient(135deg, var(--dawn), var(--dusk) 50%, var(--dusk));
-    transform: scaleX(0);
-    transform-origin: left;
-    transition: transform 0.5s var(--ease-site);
-  }
-
-  /* :focus-within so the rule also appears for keyboard users, who never hover. */
-  .dh-card:hover::before,
-  .dh-card:focus-within::before {
-    transform: scaleX(1);
-  }
-
-  /* ---------- reveal choreography ---------- */
   /*
+   * Fade-and-rise on entry, matching the main site's FadeIn: 16px, 0.7s.
    * Hidden from the very first paint, so there is nothing to flash: the server
-   * already renders this state and <Reveal> only ever adds .dh-in. The
+   * already renders this state and <Reveal> only ever adds .is-visible. The
    * <noscript> block in layout.tsx un-hides these when JavaScript is off.
    */
-  .dh-reveal {
+  .fade-in {
     opacity: 0;
-    transform: translateY(28px);
+    transform: translateY(16px);
     transition:
-      opacity 0.9s var(--ease-site),
-      transform 0.9s var(--ease-site);
+      opacity 0.7s ease-out,
+      transform 0.7s ease-out;
   }
 
-  .dh-reveal.dh-in {
+  .fade-in.is-visible {
     opacity: 1;
     transform: none;
   }
@@ -503,12 +215,8 @@
     scroll-behavior: auto !important;
   }
 
-  .dh-reveal {
+  .fade-in {
     opacity: 1;
     transform: none;
-  }
-
-  .dh-cursor-glow {
-    display: none;
   }
 }

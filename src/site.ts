@@ -39,19 +39,19 @@ export const LINKS = {
   search: { label: 'Search articles', href: '/search' },
 } satisfies Record<string, NavLink>
 
-/** Header CTA — the shop, standing in for the template's original booking link. */
-export const CTA_URL = `${SITE}/supplements`
-
-export const NAV_BAR: NavLink[] = [
-  LINKS.shopAll,
-  LINKS.bestsellers,
-  LINKS.writers,
-  LINKS.about,
-]
-
-export const NAV_DROPDOWNS: Record<string, NavLink[]> = {
-  Resources: [LINKS.blog, LINKS.search, LINKS.faq, LINKS.contact],
+/**
+ * The announcement bar above the header, mirroring the main site's. If the
+ * offer changes there, re-sync this copy — it lives only here.
+ */
+export const ANNOUNCEMENT = {
+  text: 'Free shipping on all orders over €50 —',
+  linkLabel: 'Shop Now',
+  href: `${SITE}/supplements`,
 }
+
+/** The 3-column header: links left and right of the centered wordmark. */
+export const NAV_LEFT: NavLink[] = [LINKS.shopAll, LINKS.bestsellers]
+export const NAV_RIGHT: NavLink[] = [LINKS.blog, LINKS.writers, LINKS.about]
 
 export const MOBILE_LINKS: NavLink[] = [
   LINKS.shopAll,
@@ -60,6 +60,36 @@ export const MOBILE_LINKS: NavLink[] = [
   LINKS.search,
   LINKS.writers,
   LINKS.about,
+]
+
+/**
+ * Footer columns, mirroring the main site's Layout.tsx footer. The main site
+ * lists its product categories under Shop from its catalog data; the blog
+ * links the two shop entry points instead of duplicating the catalog.
+ */
+export const FOOTER_BLURB =
+  'Thoughtfully formulated supplements for those who believe wellness is a daily practice, not a trend.'
+
+export const FOOTER_SHOP: NavLink[] = [
+  { label: 'All Supplements', href: `${SITE}/supplements` },
+  LINKS.bestsellers,
+]
+
+export const FOOTER_COMPANY: NavLink[] = [
+  { label: 'Journal', href: '/blog' },
+  LINKS.about,
   LINKS.faq,
   LINKS.contact,
+  { label: 'Shipping & Returns', href: `${SITE}/shipping-returns` },
+  { label: 'Privacy Policy', href: `${SITE}/privacy-policy` },
+  { label: 'Terms of Service', href: `${SITE}/terms-of-service` },
+]
+
+export const FOOTER_EMAIL = 'hello@2ahealthylife.com'
+
+export const BUSINESS_DETAILS = [
+  '2ahealthylife is a webstore of Spring Digital Commerce',
+  '2810 North Church Street',
+  'Wilmington, DE 19802',
+  'EIN: 35-2886201',
 ]

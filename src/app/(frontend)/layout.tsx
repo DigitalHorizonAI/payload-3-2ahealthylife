@@ -1,39 +1,33 @@
 import type { Metadata } from 'next'
 
 import { cn } from 'src/utilities/cn'
-import { Space_Mono, Urbanist } from 'next/font/google'
+import { Cormorant_Garamond, DM_Sans } from 'next/font/google'
 import React from 'react'
 
 import { AdminBar } from '@/components/AdminBar'
 import { Footer } from '@/Footer/Component'
 import { Header } from '@/Header/Component'
 import { LivePreviewListener } from '@/components/LivePreviewListener'
-import { CursorGlow } from '@/components/Motion/CursorGlow'
-import { SmoothScroll } from '@/components/Motion/SmoothScroll'
 import { Providers } from '@/providers'
 import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
 import { draftMode } from 'next/headers'
 
-import 'lenis/dist/lenis.css'
 import './globals.css'
-// Ported verbatim from the marketing site; must load after globals.css so its
-// nav rules win over Tailwind's utilities where the two overlap.
-import './nav.css'
 import { getServerSideURL } from '@/utilities/getURL'
 
-// The same two families digital-horizon.io loads, so the blog reads as one site:
-// Urbanist for everything, Space Mono for eyebrows and labels.
-const urbanist = Urbanist({
+// The same two families 2ahealthylife.com loads, so the blog reads as one
+// site: Cormorant Garamond for headings, DM Sans for everything else.
+const cormorant = Cormorant_Garamond({
   subsets: ['latin'],
-  weight: ['200', '300', '400', '500', '600'],
-  variable: '--font-sans',
+  weight: ['400', '500'],
+  variable: '--font-cormorant',
   display: 'swap',
 })
 
-const spaceMono = Space_Mono({
+const dmSans = DM_Sans({
   subsets: ['latin'],
-  weight: ['400', '700'],
-  variable: '--font-mono',
+  weight: ['400', '500'],
+  variable: '--font-dm-sans',
   display: 'swap',
 })
 
@@ -41,17 +35,17 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const { isEnabled } = await draftMode()
 
   return (
-    <html className={cn(urbanist.variable, spaceMono.variable)} lang="en" suppressHydrationWarning>
+    <html className={cn(cormorant.variable, dmSans.variable)} lang="en" suppressHydrationWarning>
       <head>
-        <link href="/brand/favicon-dark.png" rel="icon" type="image/png" />
+        <link href="/favicon.ico" rel="icon" sizes="32x32" />
         {/* The reveal animation starts from opacity 0, so without JavaScript
             there would be nothing to un-hide it. Cheaper and more reliable
             than a blocking script, and it degrades to "just show everything". */}
         <noscript>
-          <style>{`.dh-reveal { opacity: 1 !important; transform: none !important; }`}</style>
+          <style>{`.fade-in { opacity: 1 !important; transform: none !important; }`}</style>
         </noscript>
       </head>
-      <body>
+      <body className="flex min-h-screen flex-col">
         <Providers>
           <AdminBar
             adminBarProps={{
@@ -60,15 +54,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           />
           <LivePreviewListener />
 
-          {/* Option C's motion layer. Both no-op under prefers-reduced-motion,
-              and the page reads fine without them. Reveals are per-element —
-              see components/Motion/Reveal. */}
-          <CursorGlow />
-          <SmoothScroll />
-
           <Header />
-          {/* The bar is position:fixed, so content has to clear it. */}
-          <div className="dh-nav-offset">{children}</div>
+          <main className="flex-1">{children}</main>
           <Footer />
         </Providers>
       </body>

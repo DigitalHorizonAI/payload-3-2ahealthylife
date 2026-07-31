@@ -3,26 +3,13 @@ import React from 'react'
 
 interface Props {
   className?: string
-  loading?: 'lazy' | 'eager'
-  priority?: 'auto' | 'high' | 'low'
-  /**
-   * Which background the logo sits on. The wordmark is text, so this is just
-   * a color flip: `onDark` forces white for surfaces that stay dark in both
-   * themes (the footer).
-   */
-  variant?: 'auto' | 'onDark'
 }
 
-export const Logo = (props: Props) => {
-  const { className, variant } = props
-
+/** The main site's text wordmark: display serif, all-caps, letter-spaced. */
+export const Logo = ({ className }: Props) => {
   return (
     <span
-      className={clsx(
-        'text-2xl font-semibold tracking-[0.08em]',
-        variant === 'onDark' && 'text-white',
-        className,
-      )}
+      className={clsx('font-display font-medium text-2xl tracking-[0.08em] text-foreground', className)}
     >
       2AHEALTHYLIFE
     </span>

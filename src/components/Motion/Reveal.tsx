@@ -12,7 +12,7 @@ type Props = {
 }
 
 /**
- * Fade-and-rise on entry, matching the marketing site: 28px, 900ms, once,
+ * Fade-and-rise on entry, matching the main site's FadeIn: 16px, 0.7s, once,
  * triggered 80px before the element reaches the bottom of the viewport.
  *
  * Each instance observes itself and keeps `shown` in React state, rather than
@@ -22,7 +22,7 @@ type Props = {
  * observer never sees nodes added after it ran — both of which Bas would hit
  * in live preview while writing.
  *
- * `.dh-reveal` is hidden by the stylesheet, so the server's HTML is already in
+ * `.fade-in` is hidden by the stylesheet, so the server's HTML is already in
  * the pre-animation state and nothing flashes. A <noscript> in the layout
  * un-hides it when JavaScript is off.
  */
@@ -57,9 +57,9 @@ export const Reveal: React.FC<Props> = ({ as: Tag = 'div', delay = 0, className,
 
   return (
     <Tag
-      className={cn('dh-reveal', shown && 'dh-in', className)}
+      className={cn('fade-in', shown && 'is-visible', className)}
       ref={ref as React.Ref<never>}
-      style={delay ? { transitionDelay: `${Math.min(delay, 3) * 0.12}s` } : undefined}
+      style={delay ? { transitionDelay: `${Math.min(delay, 3) * 0.1}s` } : undefined}
     >
       {children}
     </Tag>
