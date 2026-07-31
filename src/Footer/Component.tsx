@@ -4,29 +4,55 @@ import React from 'react'
 
 import type { Footer } from '@/payload-types'
 
-import { ThemeSelector } from '@/providers/Theme/ThemeSelector'
 import { CMSLink } from '@/components/Link'
 import { Logo } from '@/components/Logo/Logo'
+import { SITE } from '@/utilities/site'
 
+// Light footer with a hairline rule, matching digital-horizon.io's .footer —
+// the template's black bar read as a different site. The theme switcher is gone
+// with it: the site is light-only.
 export async function Footer() {
   const footer: Footer = await getCachedGlobal('footer', 1)()
 
   const navItems = footer?.navItems || []
 
   return (
-    <footer className="border-t border-border bg-black dark:bg-card text-white">
-      <div className="container py-8 gap-8 flex flex-col md:flex-row md:justify-between">
-        <Link className="flex items-center" href="/">
-          <Logo />
-        </Link>
+    <footer className="pt-14 pb-10">
+      <div className="container">
+        <div className="flex flex-wrap items-start justify-between gap-10">
+          <div className="flex flex-col gap-4">
+            <Link className="flex items-center" href="/">
+              <Logo />
+            </Link>
+            <p className="max-w-[280px] text-sm leading-relaxed text-muted-foreground">
+              {SITE.description}
+            </p>
+          </div>
 
-        <div className="flex flex-col-reverse items-start md:flex-row gap-4 md:items-center">
-          <ThemeSelector />
-          <nav className="flex flex-col md:flex-row gap-4">
+          <nav className="flex flex-col gap-3 text-sm">
             {navItems.map(({ link }, i) => {
-              return <CMSLink className="text-white" key={i} {...link} />
+              return (
+                <CMSLink
+                  className="text-muted-foreground transition-colors hover:text-foreground"
+                  key={i}
+                  {...link}
+                />
+              )
             })}
           </nav>
+        </div>
+
+        <div className="mt-14 flex flex-wrap justify-between gap-4 border-t border-border pt-6 text-xs font-medium text-muted-foreground">
+          <span>
+            © {new Date().getFullYear()} {SITE.name}
+          </span>
+          <a
+            className="transition-colors hover:text-foreground"
+            href="https://2ahealthylife.com"
+            rel="noreferrer"
+          >
+            2ahealthylife.com
+          </a>
         </div>
       </div>
     </footer>

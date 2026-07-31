@@ -5,25 +5,26 @@ interface Props {
   className?: string
   loading?: 'lazy' | 'eager'
   priority?: 'auto' | 'high' | 'low'
+  /**
+   * Which background the logo sits on. The wordmark is text, so this is just
+   * a color flip: `onDark` forces white for surfaces that stay dark in both
+   * themes (the footer).
+   */
+  variant?: 'auto' | 'onDark'
 }
 
 export const Logo = (props: Props) => {
-  const { loading: loadingFromProps, priority: priorityFromProps, className } = props
-
-  const loading = loadingFromProps || 'lazy'
-  const priority = priorityFromProps || 'low'
+  const { className, variant } = props
 
   return (
-    /* eslint-disable @next/next/no-img-element */
-    <img
-      alt="Payload Logo"
-      width={193}
-      height={34}
-      loading={loading}
-      fetchPriority={priority}
-      decoding="async"
-      className={clsx('max-w-[9.375rem] w-full h-[34px]', className)}
-      src="https://raw.githubusercontent.com/payloadcms/payload/main/packages/ui/src/assets/payload-logo-light.svg"
-    />
+    <span
+      className={clsx(
+        'text-2xl font-semibold tracking-[0.08em]',
+        variant === 'onDark' && 'text-white',
+        className,
+      )}
+    >
+      2AHEALTHYLIFE
+    </span>
   )
 }
