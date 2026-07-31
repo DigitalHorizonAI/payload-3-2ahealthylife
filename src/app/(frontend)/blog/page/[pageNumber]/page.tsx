@@ -1,9 +1,7 @@
 import type { Metadata } from 'next/types'
 import { SITE } from '@/utilities/site'
 
-import { BlogSheet } from '@/components/BlogSheet'
 import { CollectionArchive } from '@/components/CollectionArchive'
-import { Reveal } from '@/components/Motion/Reveal'
 import { PageRange } from '@/components/PageRange'
 import { Pagination } from '@/components/Pagination'
 import configPromise from '@payload-config'
@@ -39,16 +37,14 @@ export default async function Page({ params: paramsPromise }: Args) {
   return (
     <div className="pb-28 pt-10 md:pt-14">
       <PageClient />
-      <div className="container mb-14">
-        {/* Same sheet as page 1, without the pill — page 2 is not a landing. */}
-        <BlogSheet>
-          <Reveal as="p" className="dh-kicker">
-            Insights
-          </Reveal>
-          <Reveal as="h1" className="dh-display mt-5 text-[clamp(44px,6.6vw,88px)]" delay={1}>
-            The <strong>2ahealthylife</strong> blog
-          </Reveal>
-        </BlogSheet>
+      {/* Same header as page 1, without the intro — page 2 is not a landing. */}
+      <div className="container mb-12">
+        <p className="text-xs tracking-[0.2em] uppercase text-muted-foreground mb-3">
+          The Journal
+        </p>
+        <h1 className="editorial-heading text-3xl sm:text-4xl text-foreground">
+          Evidence-Based Wellness
+        </h1>
       </div>
 
       <div className="container mb-8">
