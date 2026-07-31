@@ -1,171 +1,120 @@
 'use client'
 
-import { AnimatePresence, motion } from 'framer-motion'
+import { Menu, Search, X } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
 
-import { BrandLogo } from './BrandLogo'
-import { CTA_URL, MOBILE_LINKS, NAV_BAR, NAV_DROPDOWNS, SITE } from '@/site'
+import { Logo } from '@/components/Logo/Logo'
+import { ANNOUNCEMENT, MOBILE_LINKS, NAV_LEFT, NAV_RIGHT, SITE, type NavLink } from '@/site'
 
 /**
- * The marketing site's nav, ported from
- * website-digital-horizon/src/sections/Nav.tsx. Same markup, same class names,
- * same CSS (see nav.css) — so the two bars are identical rather than similar.
+ * The main site's header, ported from seo-2ahealthylife's Layout.tsx: an
+ * announcement bar, then a sticky bar with links flanking a centered
+ * wordmark. One deliberate difference: where the main site has its cart
+ * icon, the blog has a search icon — this site has articles, not a cart.
  *
- * It renders the marketing bar's default state: links, dropdowns and the CTA
- * all visible, with only the frosted `scrolled` background reacting to scroll.
- * The marketing site also has a `past-hero` state that collapses the bar to
- * logo + MENU once you scroll past its hero; the blog has no hero and does not
- * use it, so it has no side drawer either.
- *
- * Two deliberate differences from the port:
- *
- * - The CTA is "Shop Now", a plain absolute link to the main site's shop —
- *   this site sells products, the template's original booked calls.
- * - The dropdown labels are <button>s, not <span>s, so they toggle on click
- *   and Enter as well as opening on hover. The marketing site's are hover-only
- *   <span>s, which leaves everything behind them — Search, Case studies,
- *   Integrations, Security, Careers, Contact — unreachable without a mouse.
- *   That is a defect there too, but it lives in another repo.
+ * Blog-internal destinations stay client-side <Link>s; the main-site ones
+ * are another origin and have to be full loads.
  */
+
+const NavAnchor: React.FC<{
+  link: NavLink
+  className: string
+  onClick?: () => void
+}> = ({ link, className, onClick }) =>
+  link.href.startsWith('/') ? (
+    <Link href={link.href} className={className} onClick={onClick}>
+      {link.label}
+    </Link>
+  ) : (
+    <a href={link.href} className={className} onClick={onClick}>
+      {link.label}
+    </a>
+  )
+
 export const HeaderClient: React.FC = () => {
-  const [scrolled, setScrolled] = useState(false)
-  const [open, setOpen] = useState(false)
-  const [menu, setMenu] = useState<string | null>(null)
-  const [panelVisible, setPanelVisible] = useState(false)
+  const [mobileOpen, setMobileOpen] = useState(false)
   const pathname = usePathname()
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 24)
-    onScroll()
-    window.addEventListener('scroll', onScroll, { passive: true })
-    return () => window.removeEventListener('scroll', onScroll)
-  }, [])
-
-  useEffect(() => {
-    setOpen(false)
-    setMenu(null)
+    setMobileOpen(false)
   }, [pathname])
 
-  useEffect(() => {
-    if (!menu) return
-    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setMenu(null)
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
-  }, [menu])
-
-  const closeMenu = () => setMenu(null)
-
-  const openMenu = (key: string) => {
-    setMenu(key)
-    setPanelVisible(true)
-  }
+  const navLinkClass = (link: NavLink) =>
+    `nav-link transition-colors hover:text-foreground ${
+      pathname === link.href ? 'text-foreground' : 'text-muted-foreground'
+    }`
 
   return (
-    <header
-      className={`nav ${scrolled ? 'scrolled' : ''} ${open ? 'open' : ''} ${panelVisible ? 'drop-open' : ''}`}
-      onMouseLeave={closeMenu}
-      // A dropdown opened by keyboard has to close when the caret leaves the
-      // bar entirely, or it hangs open over the article behind it.
-      onBlur={(e) => {
-        if (!e.currentTarget.contains(e.relatedTarget as Node | null)) closeMenu()
-      }}
-    >
-      <div className="nav-bar">
-        <a href={SITE} aria-label="2ahealthylife home" style={{ display: 'inline-flex' }}>
-          <BrandLogo height={24} />
-        </a>
-        <nav className="nav-links">
-          {NAV_BAR.map((l) => (
-            <a key={l.label} href={l.href}>
-              {l.label}
-            </a>
-          ))}
-          {Object.keys(NAV_DROPDOWNS).map((key) => (
-            <span key={key} className="nav-drop" onMouseEnter={() => openMenu(key)}>
-              <button
-                type="button"
-                className={`nav-drop-label ${menu === key ? 'active' : ''}`}
-                aria-expanded={menu === key}
-                onClick={() => (menu === key ? closeMenu() : openMenu(key))}
-              >
-                {key} <span className="nav-caret">▾</span>
-              </button>
-            </span>
-          ))}
-        </nav>
-        <a
-          className="btn btn-primary btn-sm nav-cta"
-          href={CTA_URL}
-        >
-          Shop Now
-        </a>
-        <button
-          className={`nav-burger ${open ? 'open' : ''}`}
-          aria-label={open ? 'Close menu' : 'Open menu'}
-          aria-expanded={open}
-          onClick={() => setOpen(!open)}
-        >
-          <span />
-          <span />
-        </button>
+    <>
+      <div className="bg-foreground text-background py-2.5 text-center">
+        <p className="text-xs tracking-[0.15em] uppercase font-medium">
+          {ANNOUNCEMENT.text}{' '}
+          <a href={ANNOUNCEMENT.href} className="underline underline-offset-2">
+            {ANNOUNCEMENT.linkLabel}
+          </a>
+        </p>
       </div>
-      <AnimatePresence onExitComplete={() => setPanelVisible(false)}>
-        {menu && (
-          <motion.div
-            className="nav-panel"
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-          >
-            <div className="nav-panel-inner sheet-bg">
-              {(NAV_DROPDOWNS[menu] ?? []).map((it) =>
-                // Blog-internal destinations stay client-side; the marketing
-                // ones are another origin and have to be a full load.
-                it.href.startsWith('/') ? (
-                  <Link key={it.label} href={it.href} onClick={closeMenu}>
-                    {it.label}
-                    {it.note && <em>{it.note}</em>}
-                  </Link>
-                ) : (
-                  <a key={it.label} href={it.href} onClick={closeMenu}>
-                    {it.label}
-                    {it.note && <em>{it.note}</em>}
-                  </a>
-                ),
-              )}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-      <AnimatePresence>
-        {open && (
-          <motion.nav
-            className="nav-mobile"
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-          >
-            <div className="nav-mobile-inner">
-              {MOBILE_LINKS.map((l) => (
-                <a key={l.label} href={l.href} onClick={() => setOpen(false)}>
-                  {l.label}
-                </a>
+
+      <header className="sticky top-0 z-50 border-b border-border bg-background/98 backdrop-blur supports-[backdrop-filter]:bg-background/95">
+        <div className="container">
+          {/* Desktop nav */}
+          <div className="hidden lg:grid grid-cols-3 items-center h-20">
+            <nav className="flex items-center gap-8">
+              {NAV_LEFT.map((link) => (
+                <NavAnchor key={link.href} link={link} className={navLinkClass(link)} />
               ))}
-              <a
-                className="btn btn-primary"
-                href={CTA_URL}
-                onClick={() => setOpen(false)}
-              >
-                Shop Now
-              </a>
+            </nav>
+
+            <a href={SITE} className="flex items-center justify-center" aria-label="2ahealthylife home">
+              <Logo />
+            </a>
+
+            <div className="flex items-center justify-end gap-8">
+              {NAV_RIGHT.map((link) => (
+                <NavAnchor key={link.href} link={link} className={navLinkClass(link)} />
+              ))}
+              <Link href="/search" aria-label="Search articles">
+                <Search className="w-[18px] h-[18px] text-foreground" strokeWidth={1.5} />
+              </Link>
             </div>
-          </motion.nav>
+          </div>
+
+          {/* Mobile nav */}
+          <div className="lg:hidden flex items-center justify-between h-14">
+            <button
+              onClick={() => setMobileOpen(!mobileOpen)}
+              className="p-1.5"
+              aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
+              aria-expanded={mobileOpen}
+            >
+              {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
+            <a href={SITE} className="absolute left-1/2 -translate-x-1/2" aria-label="2ahealthylife home">
+              <Logo className="text-lg" />
+            </a>
+            <Link href="/search" className="p-1.5" aria-label="Search articles">
+              <Search className="w-[18px] h-[18px] text-foreground" strokeWidth={1.5} />
+            </Link>
+          </div>
+        </div>
+
+        {mobileOpen && (
+          <div className="lg:hidden border-t border-border bg-background">
+            <nav className="container py-6 flex flex-col gap-4">
+              {MOBILE_LINKS.map((link) => (
+                <NavAnchor
+                  key={link.href}
+                  link={link}
+                  className="nav-link text-muted-foreground hover:text-foreground py-1"
+                  onClick={() => setMobileOpen(false)}
+                />
+              ))}
+            </nav>
+          </div>
         )}
-      </AnimatePresence>
-    </header>
+      </header>
+    </>
   )
 }

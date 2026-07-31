@@ -4,7 +4,7 @@ import { HeaderClient } from './Component.client'
 
 /**
  * The navigation is code-owned, defined in src/site.ts, so that it stays
- * identical to digital-horizon.io's. It is deliberately NOT read from the
+ * identical to 2ahealthylife.com's. It is deliberately NOT read from the
  * Payload `header` global any more — editing navItems in the CMS will have no
  * effect on what renders here.
  */

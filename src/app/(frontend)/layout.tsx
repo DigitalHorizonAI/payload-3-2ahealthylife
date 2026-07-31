@@ -13,9 +13,6 @@ import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
 import { draftMode } from 'next/headers'
 
 import './globals.css'
-// Ported verbatim from the marketing site; must load after globals.css so its
-// nav rules win over Tailwind's utilities where the two overlap.
-import './nav.css'
 import { getServerSideURL } from '@/utilities/getURL'
 
 // The same two families 2ahealthylife.com loads, so the blog reads as one
@@ -48,7 +45,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           <style>{`.fade-in { opacity: 1 !important; transform: none !important; }`}</style>
         </noscript>
       </head>
-      <body>
+      <body className="flex min-h-screen flex-col">
         <Providers>
           <AdminBar
             adminBarProps={{
@@ -58,8 +55,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           <LivePreviewListener />
 
           <Header />
-          {/* The bar is position:fixed, so content has to clear it. */}
-          <div className="dh-nav-offset">{children}</div>
+          <main className="flex-1">{children}</main>
           <Footer />
         </Providers>
       </body>
