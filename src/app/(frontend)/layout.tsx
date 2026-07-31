@@ -37,7 +37,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html className={cn(cormorant.variable, dmSans.variable)} lang="en" suppressHydrationWarning>
       <head>
-        <link href="/brand/favicon-dark.png" rel="icon" type="image/png" />
+        <link href="/favicon.ico" rel="icon" sizes="32x32" />
         {/* The reveal animation starts from opacity 0, so without JavaScript
             there would be nothing to un-hide it. Cheaper and more reliable
             than a blocking script, and it degrades to "just show everything". */}

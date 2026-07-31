@@ -8,6 +8,10 @@
 export const SITE = {
   name: '2ahealthylife',
   description: '2ahealthylife — evidence-based supplement guides and healthy living.',
-  /** Path to the default social sharing image, relative to the public origin. */
-  defaultOGImage: '/website-template-OG.webp',
+  /**
+   * Path to the default social sharing image, relative to the public origin.
+   * Resolves to the main site's own default OG image (its hero), so shared
+   * blog links carry the same art as the rest of 2ahealthylife.com.
+   */
+  defaultOGImage: '/hero-editorial.webp',
 } as const

@@ -32,10 +32,8 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }, [])
 
-  // digital-horizon.io is light-only, so the blog is too: neither the OS
-  // preference nor a stale stored preference may flip it. The dark token set
-  // stays in globals.css, just unreachable. Keep this in sync with the
-  // duplicated inline script in ./InitTheme — they are two copies of one rule.
+  // 2ahealthylife.com is light-only, so the blog is too: neither the OS
+  // preference nor a stale stored preference may flip it.
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', defaultTheme)
     setThemeState(defaultTheme)
