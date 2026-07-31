@@ -3,85 +3,95 @@ import React from 'react'
 
 import type { Post } from '@/payload-types'
 
+import { BlogSheet } from '@/components/BlogSheet'
 import { Media } from '@/components/Media'
+import { Reveal } from '@/components/Motion/Reveal'
 
 export const PostHero: React.FC<{
   post: Post
 }> = ({ post }) => {
   const { categories, meta: { image: metaImage } = {}, populatedAuthors, publishedAt, title } = post
 
+  // Option C's article header: category, headline and byline all inside the
+  // dotted blue sheet — the treatment Bas signed off on ("the title and the
+  // writer within the blue background"). The cover image sits below it as a
+  // rounded card rather than full-bleed behind the sticky nav.
   return (
-    <div className="relative -mt-[10.4rem] flex items-end">
-      <div className="container z-10 relative lg:grid lg:grid-cols-[1fr_48rem_1fr] text-white pb-8">
-        <div className="col-start-1 col-span-1 md:col-start-2 md:col-span-2">
-          <div className="uppercase text-sm mb-6">
-            {categories?.map((category, index) => {
-              if (typeof category === 'object' && category !== null) {
-                const { title: categoryTitle } = category
+    <div className="pt-10 md:pt-14">
+      <div className="container">
+        <BlogSheet>
+          {categories && categories.length > 0 && (
+            <Reveal as="p" className="dh-kicker">
+              {categories.map((category, index) => {
+                if (typeof category === 'object' && category !== null) {
+                  const { title: categoryTitle } = category
 
-                const titleToUse = categoryTitle || 'Untitled category'
+                  const titleToUse = categoryTitle || 'Untitled category'
 
-                const isLast = index === categories.length - 1
+                  const isLast = index === categories.length - 1
 
-                return (
-                  <React.Fragment key={index}>
-                    {titleToUse}
-                    {!isLast && <React.Fragment>, &nbsp;</React.Fragment>}
-                  </React.Fragment>
-                )
-              }
-              return null
-            })}
-          </div>
+                  return (
+                    <React.Fragment key={index}>
+                      {titleToUse}
+                      {!isLast && <React.Fragment>, &nbsp;</React.Fragment>}
+                    </React.Fragment>
+                  )
+                }
+                return null
+              })}
+            </Reveal>
+          )}
 
-          <div className="">
-            <h1 className="mb-6 text-3xl md:text-5xl lg:text-6xl">{title}</h1>
-          </div>
+          <Reveal
+            as="h1"
+            className="dh-display mt-5 max-w-[20ch] text-[clamp(36px,5.2vw,64px)]"
+            delay={1}
+          >
+            {title}
+          </Reveal>
 
-          <div className="flex flex-col md:flex-row gap-4 md:gap-16">
-            <div className="flex flex-col gap-4">
-              {populatedAuthors && (
-                <div className="flex flex-col gap-1">
-                  <p className="text-sm">Author</p>
-                  {populatedAuthors.map((author, index) => {
-                    const { name } = author
+          <Reveal
+            className="mt-8 flex max-w-[640px] flex-wrap items-baseline gap-x-6 gap-y-2.5 border-t border-[rgba(26,26,26,0.12)] pt-5 text-sm text-[color:var(--ink-soft)]"
+            delay={2}
+          >
+            {populatedAuthors && populatedAuthors.length > 0 && (
+              <span>
+                {populatedAuthors.map((author, index) => {
+                  const { name } = author
 
-                    const isLast = index === populatedAuthors.length - 1
-                    const secondToLast = index === populatedAuthors.length - 2
+                  const isLast = index === populatedAuthors.length - 1
+                  const secondToLast = index === populatedAuthors.length - 2
 
-                    return (
-                      <React.Fragment key={index}>
-                        {name}
-                        {secondToLast && populatedAuthors.length > 2 && (
-                          <React.Fragment>, </React.Fragment>
-                        )}
-                        {secondToLast && populatedAuthors.length === 2 && (
-                          <React.Fragment> </React.Fragment>
-                        )}
-                        {!isLast && populatedAuthors.length > 1 && (
-                          <React.Fragment>and </React.Fragment>
-                        )}
-                      </React.Fragment>
-                    )
-                  })}
-                </div>
-              )}
-            </div>
-            {publishedAt && (
-              <div className="flex flex-col gap-1">
-                <p className="text-sm">Date Published</p>
-
-                <time dateTime={publishedAt}>{formatDateTime(publishedAt)}</time>
-              </div>
+                  return (
+                    <React.Fragment key={index}>
+                      {index === 0 ? <strong>{name}</strong> : name}
+                      {secondToLast && populatedAuthors.length > 2 && (
+                        <React.Fragment>, </React.Fragment>
+                      )}
+                      {secondToLast && populatedAuthors.length === 2 && (
+                        <React.Fragment> </React.Fragment>
+                      )}
+                      {!isLast && populatedAuthors.length > 1 && (
+                        <React.Fragment>and </React.Fragment>
+                      )}
+                    </React.Fragment>
+                  )
+                })}
+              </span>
             )}
-          </div>
-        </div>
-      </div>
-      <div className="min-h-[80vh] select-none">
+            {publishedAt && (
+              <time className="dh-meta" dateTime={publishedAt}>
+                {formatDateTime(publishedAt)}
+              </time>
+            )}
+          </Reveal>
+        </BlogSheet>
+
         {metaImage && typeof metaImage !== 'string' && (
-          <Media fill imgClassName="-z-10 object-cover" resource={metaImage} />
+          <Reveal className="mx-auto mt-12 max-w-[56rem] select-none overflow-hidden rounded-[26px] border border-[rgba(26,26,26,0.08)] shadow-[0_24px_60px_rgba(26,26,26,0.07)]">
+            <Media imgClassName="w-full object-cover" resource={metaImage} />
+          </Reveal>
         )}
-        <div className="absolute pointer-events-none left-0 bottom-0 w-full h-1/2 bg-gradient-to-t from-black to-transparent" />
       </div>
     </div>
   )

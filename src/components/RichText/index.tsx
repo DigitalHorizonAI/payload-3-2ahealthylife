@@ -26,7 +26,8 @@ const RichText: React.FC<Props> = ({
         {
           'container ': enableGutter,
           'max-w-none': !enableGutter,
-          'mx-auto prose dark:prose-invert ': enableProse,
+          // dh-prose adds the marketing site's growing blue link highlight.
+          'mx-auto prose dh-prose': enableProse,
         },
         className,
       )}
