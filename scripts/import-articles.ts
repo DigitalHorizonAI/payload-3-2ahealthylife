@@ -17,6 +17,7 @@ import { convertHTMLToLexical, editorConfigFactory } from '@payloadcms/richtext-
 import { JSDOM } from 'jsdom'
 import fs from 'fs'
 import path from 'path'
+import { randomUUID } from 'crypto'
 
 const BACKUP = 'C:/Dev/digital-horizon/backups/2026-08-03'
 const SITE_DOMAIN = process.env.IMPORT_DOMAIN || '2ahealthylife.com'
@@ -52,8 +53,52 @@ const run = async () => {
   const rows = JSON.parse(fs.readFileSync(SOURCE_JSON, 'utf8')) as any[]
   rows.sort((a, b) => (a.published_at ?? '').localeCompare(b.published_at ?? ''))
 
-  const stats = { created: 0, skippedExisting: 0, noSlug: 0, heroMissing: 0, inlineImgs: 0, failed: [] as string[] }
+  const stats = { created: 0, skippedExisting: 0, noSlug: 0, heroMissing: 0, inlineImgs: 0, inlineDropped: 0, failed: [] as string[] }
   const categoryCache = new Map<string, number>()
+  const mediaCache = new Map<string, number>()
+
+  /** Create (or reuse) a media doc for an image reference; null if the file is not in the mirror. */
+  const ensureMedia = async (ref: string | null, alt: string): Promise<number | null> => {
+    const file = mirroredFile(ref)
+    if (!file) return null
+    const cached = mediaCache.get(file)
+    if (cached) return cached
+    const media = await payload.create({ collection: 'media', data: { alt }, filePath: file })
+    mediaCache.set(file, media.id as number)
+    return media.id as number
+  }
+
+  /**
+   * The HTML converter emits inline <img> as upload nodes stuck in `pending`
+   * (the editor's paste flow) — and the site's serializer has no upload case,
+   * so they render as nothing. Replace each with a mediaBlock node (which the
+   * serializer already renders), and drop the ones whose file is broken in
+   * production.
+   */
+  const resolvePendingUploads = async (node: any, alt: string): Promise<void> => {
+    if (Array.isArray(node?.children)) {
+      const kept: any[] = []
+      for (const child of node.children) {
+        if (child?.type === 'upload' && child.pending?.src) {
+          const id = await ensureMedia(child.pending.src, alt)
+          if (id == null) {
+            stats.inlineDropped++
+            continue
+          }
+          kept.push({
+            type: 'block',
+            fields: { id: randomUUID().replace(/-/g, '').slice(0, 24), blockType: 'mediaBlock', media: id },
+            format: '',
+            version: 2,
+          })
+        } else {
+          await resolvePendingUploads(child, alt)
+          kept.push(child)
+        }
+      }
+      node.children = kept
+    }
+  }
 
   const categoryId = async (title: string): Promise<number> => {
     const cached = categoryCache.get(title)
@@ -84,23 +129,14 @@ const run = async () => {
     }
     processed++
     try {
-      let heroId: number | undefined
-      const heroFile = mirroredFile(row.main_image)
-      if (heroFile) {
-        const media = await payload.create({
-          collection: 'media',
-          data: { alt: row.title },
-          filePath: heroFile,
-        })
-        heroId = media.id as number
-      } else if (row.main_image) {
-        stats.heroMissing++
-      }
+      const heroId = await ensureMedia(row.main_image, row.title)
+      if (heroId == null && row.main_image) stats.heroMissing++
 
       const html: string = row.content_html || `<p>${row.content ?? ''}</p>`
       stats.inlineImgs += (html.match(/<img\s/g) ?? []).length
 
       const content = convertHTMLToLexical({ editorConfig, html, JSDOM })
+      await resolvePendingUploads(content.root, row.title)
 
       const cats: number[] = []
       if (row.category) cats.push(await categoryId(row.category))
@@ -118,7 +154,7 @@ const run = async () => {
           meta: {
             title: row.meta_title || row.title,
             description: row.meta_description || row.summary || undefined,
-            image: heroId,
+            image: heroId ?? undefined,
           },
         },
       })
