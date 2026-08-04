@@ -8,7 +8,6 @@ import {
   FOOTER_COMPANY,
   FOOTER_EMAIL,
   FOOTER_SHOP,
-  SITE,
   type NavLink,
 } from '@/site'
 
@@ -37,9 +36,9 @@ export function Footer() {
       <div className="container py-16 lg:py-20">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 lg:gap-12">
           <div className="lg:col-span-2">
-            <a href={SITE} className="inline-block mb-5" aria-label="2ahealthylife home">
+            <Link href="/" className="inline-block mb-5" aria-label="2ahealthylife home">
               <Logo className="text-xl" />
-            </a>
+            </Link>
             <p className="text-sm text-muted-foreground leading-relaxed max-w-xs">{FOOTER_BLURB}</p>
           </div>
 

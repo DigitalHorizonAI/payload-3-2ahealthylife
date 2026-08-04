@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
 
 import { Logo } from '@/components/Logo/Logo'
-import { ANNOUNCEMENT, MOBILE_LINKS, NAV_LEFT, NAV_RIGHT, SITE, type NavLink } from '@/site'
+import { ANNOUNCEMENT, MOBILE_LINKS, NAV_LEFT, NAV_RIGHT, type NavLink } from '@/site'
 
 /**
  * The main site's header, ported from seo-2ahealthylife's Layout.tsx: an
@@ -67,9 +67,9 @@ export const HeaderClient: React.FC = () => {
               ))}
             </nav>
 
-            <a href={SITE} className="flex items-center justify-center" aria-label="2ahealthylife home">
+            <Link href="/" className="flex items-center justify-center" aria-label="2ahealthylife home">
               <Logo />
-            </a>
+            </Link>
 
             <div className="flex items-center justify-end gap-8">
               {NAV_RIGHT.map((link) => (
@@ -91,9 +91,9 @@ export const HeaderClient: React.FC = () => {
             >
               {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
-            <a href={SITE} className="absolute left-1/2 -translate-x-1/2" aria-label="2ahealthylife home">
+            <Link href="/" className="absolute left-1/2 -translate-x-1/2" aria-label="2ahealthylife home">
               <Logo className="text-lg" />
-            </a>
+            </Link>
             <Link href="/search" className="p-1.5" aria-label="Search articles">
               <Search className="w-[18px] h-[18px] text-foreground" strokeWidth={1.5} />
             </Link>
