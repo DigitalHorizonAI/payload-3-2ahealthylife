@@ -119,16 +119,29 @@ for (const persona of PERSONAS) {
       if (typeof rule !== 'function') continue
 
       const req = { user: persona.user, payload: resolved, context: {} }
+      const want = persona.expected[collection.slug]?.[operation] ?? 'denied'
+      checked++
+
       let actual: Verdict
       try {
         actual = classify(await (rule as (a: unknown) => unknown)({ req }))
-      } catch {
-        // A rule that throws on this shape refuses the request in practice.
-        actual = 'denied'
+      } catch (error) {
+        /**
+         * Deliberately NOT treated as a denial.
+         *
+         * A throw most likely means this script called the rule with a `req`
+         * shape it did not expect, so the answer is unknown — and "unknown"
+         * recorded as "denied" is the one failure mode that would make this
+         * whole script worthless: every rule it could not evaluate would read
+         * as secure. Report it and fail instead, so an unevaluatable rule is
+         * loud rather than reassuring.
+         */
+        failures.push(
+          `${persona.label.padEnd(28)} ${collection.slug}.${operation.padEnd(8)} ` +
+            `could not be evaluated: ${error instanceof Error ? error.message : String(error)}`,
+        )
+        continue
       }
-
-      const want = persona.expected[collection.slug]?.[operation] ?? 'denied'
-      checked++
 
       if (actual !== want) {
         failures.push(
@@ -143,7 +156,7 @@ for (const persona of PERSONAS) {
 console.log(`Checked ${checked} access rules across ${PERSONAS.length} personas.\n`)
 
 if (failures.length) {
-  console.error(`${failures.length} rule(s) grant more than intended:\n`)
+  console.error(`${failures.length} rule(s) grant more than intended, or could not be checked:\n`)
   for (const failure of failures) console.error(`  ${failure}`)
   console.error('')
   process.exit(1)
