@@ -7,6 +7,12 @@ import { NextResponse } from 'next/server'
  * site, so every frontend route is noindexed unconditionally: the generated
  * Railway host serves a full copy of the site, and its robots Disallow only
  * blocks crawling, not indexing of linked URLs.
+ *
+ * ⚠️ The matcher's /api exclusion is LOAD-BEARING: 2ahealthylife.com
+ * 200-proxies /cms/* and /api/media/* to this app's /api/* (netlify.toml in
+ * seo-2ahealthylife), and 200 rewrites pass upstream headers through. Widening
+ * the matcher to /api would put this noindex header on the REAL site's
+ * proxied responses.
  */
 export function middleware(_request: NextRequest): NextResponse {
   const response = NextResponse.next()
