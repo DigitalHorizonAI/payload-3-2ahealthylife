@@ -55,14 +55,28 @@ test('one timeout followed by recovery does not exit', async () => {
   const newClient = () => new pg.Client(pool.options)
   const held = await pool.connect()
   const s = spies()
+  // Record each probe's outcome, so the test proves a timeout really happened.
+  const probes = []
+  const recorded = {
+    query: (sql) =>
+      pool.query(sql).then(
+        (r) => (probes.push('ok'), r),
+        (e) => {
+          probes.push('fail')
+          throw e
+        },
+      ),
+  }
 
-  const stop = startPoolWatchdog({ pool, newClient, log: s.log, exit: s.exit, intervalMs })
+  const stop = startPoolWatchdog({ pool: recorded, newClient, log: s.log, exit: s.exit, intervalMs })
   await sleep(intervalMs + connectionTimeoutMillis + 100) // first probe times out
   held.release()
   await waitForProbes(4)
   stop()
   await pool.end()
 
+  assert.equal(probes[0], 'fail')
+  assert.ok(probes.includes('ok'))
   assert.deepEqual(s.exits, [])
   assert.deepEqual(s.lines.error, [])
   assert.deepEqual(s.lines.warn, [])
