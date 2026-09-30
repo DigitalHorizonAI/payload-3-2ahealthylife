@@ -13,6 +13,10 @@ import { text } from 'payload/shared'
 // `https://nplink.net/…` into `https.nplink.net/…` before saving (cause not
 // found); refuse that shape instead of publishing a broken href.
 const LINK_URL = /^(https?:\/\/\S|mailto:|tel:|\/|#)/
+// The link drawer pre-fills `https://`, so pasting a full address without
+// clearing it gives `https://https://…` or `https://https.…`. This also
+// refuses a real host named `http.…` or `https.…` (e.g. http.cat).
+const DOUBLED_SCHEME = /^https?:\/\/(https?:|https?\.)/i
 
 export const defaultLexical: Config['editor'] = lexicalEditor({
   features: () => {
@@ -43,6 +47,9 @@ export const defaultLexical: Config['editor'] = lexicalEditor({
                 const url = value?.trim()
                 if (url && !LINK_URL.test(url)) {
                   return 'This link is missing https:// — paste the full address again.'
+                }
+                if (url && DOUBLED_SCHEME.test(url)) {
+                  return 'This link has https:// twice — clear the field and paste the address again.'
                 }
                 return text(value, args)
               },

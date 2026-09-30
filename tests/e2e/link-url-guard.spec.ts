@@ -1,4 +1,4 @@
-import type { APIRequestContext } from '@playwright/test'
+import type { APIRequestContext, Page } from '@playwright/test'
 
 import { expect, test } from '@playwright/test'
 
@@ -16,10 +16,16 @@ import { adminAuthHeader } from './admin'
  * reports only "The following fields are invalid: url". Draft saves
  * (`?draft=true`, autosave) skip field validation because Posts does not set
  * `versions.drafts.validate`: the refusal lands at publish.
+ *
+ * The link drawer pre-fills `https://`, so pasting a full address into it
+ * without clearing it first gives `https://https://…` (or, mangled as above,
+ * `https://https.…`). That is refused too.
  */
 
 const MANGLED = 'https.nplink.net/9izl9u2b'
 const MESSAGE = 'This link is missing https:// — paste the full address again.'
+const DOUBLED = ['https://https://nplink.net/9izl9u2b', 'https://https.nplink.net/9izl9u2b']
+const DOUBLED_MESSAGE = 'This link has https:// twice — clear the field and paste the address again.'
 
 const paragraph = (...children: object[]) => ({
   root: {
@@ -88,6 +94,14 @@ test.describe('link url guard', () => {
     expect(await res.text()).toContain('The following fields are invalid: url')
   })
 
+  for (const url of DOUBLED) {
+    test(`a doubled scheme ${url} is refused on publish`, async ({ request }) => {
+      const res = await save(request, url)
+      expect(res.status()).toBe(400)
+      expect(await res.text()).toContain('The following fields are invalid: url')
+    })
+  }
+
   for (const url of [
     'https://nplink.net/9izl9u2b',
     ' https://x.com',
@@ -109,7 +123,9 @@ test.describe('link url guard', () => {
     expect(res.status(), await res.text()).toBe(201)
   })
 
-  test('the admin will not publish a link that lost its ://', async ({ baseURL, page, request }) => {
+  // A published post with one paragraph, opened in the admin with the link
+  // drawer up on it.
+  const openLinkDrawer = async (page: Page, request: APIRequestContext, baseURL: string) => {
     const created = await request.post('/api/posts', {
       headers: { Authorization: adminAuth },
       data: { title: 'LINK GUARD UI', _status: 'published', content: paragraph(text('link me')) },
@@ -119,7 +135,7 @@ test.describe('link url guard', () => {
 
     await page
       .context()
-      .addCookies([{ name: 'payload-token', value: adminAuth.replace('JWT ', ''), url: baseURL! }])
+      .addCookies([{ name: 'payload-token', value: adminAuth.replace('JWT ', ''), url: baseURL }])
     await page.goto(`/admin/collections/posts/${doc.id}`)
 
     const editor = page.locator('[data-lexical-editor="true"]').first()
@@ -128,11 +144,23 @@ test.describe('link url guard', () => {
 
     const drawer = page.getByRole('dialog', { name: /lexical-rich-text-link/ })
     // Text to display, then Enter a URL. The drawer fills in `https://` once it
-    // has loaded; typing before that gets overwritten.
+    // has loaded, and on a slow machine can do so again after it first shows,
+    // wiping what was typed. Wait for the page to go quiet, and `enter`
+    // retries until the value sticks.
     const url = drawer.getByRole('textbox').nth(1)
     await expect(url).toHaveValue('https://')
-    await url.fill(MANGLED)
-    await expect(url).toHaveValue(MANGLED)
+    await page.waitForLoadState('networkidle')
+    const enter = (type: () => Promise<void>, expected: string) =>
+      expect(async () => {
+        await type()
+        await expect(url).toHaveValue(expected, { timeout: 2000 })
+      }).toPass()
+    return { doc, drawer, enter, url }
+  }
+
+  test('the admin will not publish a link that lost its ://', async ({ baseURL, page, request }) => {
+    const { doc, drawer, enter, url } = await openLinkDrawer(page, request, baseURL!)
+    await enter(() => url.fill(MANGLED), MANGLED)
     await drawer.getByRole('button', { name: 'Save changes' }).click()
     await page.waitForTimeout(1500)
 
@@ -156,5 +184,23 @@ test.describe('link url guard', () => {
       headers: { Authorization: adminAuth },
     })
     expect(JSON.stringify((await after.json()).content)).not.toContain(MANGLED)
+  })
+
+  test('the admin drawer refuses a full address pasted after its https://', async ({ baseURL, page, request }) => {
+    const { doc, drawer, enter, url } = await openLinkDrawer(page, request, baseURL!)
+    // Paste behind the pre-filled `https://` without clearing it.
+    await enter(async () => {
+      await url.fill('https://')
+      await url.press('End')
+      await page.keyboard.insertText('https://nplink.net/9izl9u2b')
+    }, DOUBLED[0])
+    await drawer.getByRole('button', { name: 'Save changes' }).click()
+
+    await expect(drawer).toContainText(DOUBLED_MESSAGE)
+
+    const after = await request.get(`/api/posts/${doc.id}?depth=0`, {
+      headers: { Authorization: adminAuth },
+    })
+    expect(JSON.stringify((await after.json()).content)).not.toContain(DOUBLED[0])
   })
 })
