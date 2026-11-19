@@ -313,4 +313,26 @@ test.describe('the app create', () => {
     const { post } = await storedContent((await res.json()).doc.id)
     expect(uploadNodes(post)).toMatchObject([{ value: mediaIds[0], relationTo: 'media' }])
   })
+
+  // The placeholder form `![a:b]()` also matches an ordinary image whose alt
+  // has a colon and whose link is empty; as a picture it would fail the whole
+  // create. Only media:<digits> is a placeholder; anything else stays text.
+  for (const line of ['![Figure 1: chart]()', '![media:abc]()', 'See ![Figure 2: table]() here.']) {
+    test(`keeps ${line} as text`, async ({ request }) => {
+      const res = await create(
+        request,
+        {
+          title: 'EDITOR UPLOAD E2E markdown text',
+          slug: `editor-upload-e2e-markdown-text-${line.length}`,
+          _status: 'published',
+          content: `Before.\n\n${line}\n\nAfter.\n`,
+        },
+        keyAuth,
+      )
+      expect(res.status(), await res.text()).toBe(201)
+      const { post } = await storedContent((await res.json()).doc.id)
+      expect(uploadNodes(post)).toEqual([])
+      expect(JSON.stringify(post.root.children[1])).toContain(JSON.stringify(line).slice(1, -1))
+    })
+  }
 })
