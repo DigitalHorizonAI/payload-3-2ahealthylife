@@ -317,13 +317,23 @@ test.describe('the app create', () => {
   // The placeholder form `![a:b]()` also matches an ordinary image whose alt
   // has a colon and whose link is empty; as a picture it would fail the whole
   // create. Only media:<digits> is a placeholder; anything else stays text.
-  for (const line of ['![Figure 1: chart]()', '![media:abc]()', 'See ![Figure 2: table]() here.']) {
-    test(`keeps ${line} as text`, async ({ request }) => {
+  // A real placeholder that shares its paragraph (mid-sentence, or on a line
+  // the converter joins to the one above) would replace the whole paragraph
+  // and drop its words, so it stays text too.
+  for (const template of [
+    '![Figure 1: chart]()',
+    '![media:abc]()',
+    'See ![Figure 2: table]() here.',
+    'See ![media:<id>]() here.',
+    'Above.\n![media:<id>]()',
+  ]) {
+    test(`keeps ${template.replace('\n', '\\n')} as text`, async ({ request }) => {
+      const line = template.replace('<id>', String(mediaIds[0]))
       const res = await create(
         request,
         {
           title: 'EDITOR UPLOAD E2E markdown text',
-          slug: `editor-upload-e2e-markdown-text-${line.length}`,
+          slug: `editor-upload-e2e-markdown-text-${template.length}`,
           _status: 'published',
           content: `Before.\n\n${line}\n\nAfter.\n`,
         },
@@ -332,7 +342,8 @@ test.describe('the app create', () => {
       expect(res.status(), await res.text()).toBe(201)
       const { post } = await storedContent((await res.json()).doc.id)
       expect(uploadNodes(post)).toEqual([])
-      expect(JSON.stringify(post.root.children[1])).toContain(JSON.stringify(line).slice(1, -1))
+      // The converter joins a line to the non-blank line above it with a space.
+      expect(JSON.stringify(post.root.children[1])).toContain(JSON.stringify(line.replace('\n', ' ')).slice(1, -1))
     })
   }
 })
