@@ -61,9 +61,27 @@ test('a bare id renders as a picture at its place between the paragraphs', async
   assert.doesNotMatch(html, /500x500|300x164/, 'cropped and tiny variants stay out of srcset')
 })
 
-test('a populated media doc renders without being looked up', async () => {
-  const html = await render(between(media(7)), [])
+test('a stored object value is resolved by its id from the media read, never trusted as the media', async () => {
+  const forged = media(7, {
+    url: '/api/media/file/forged.webp',
+    alt: 'forged',
+    width: '1" onerror="alert(1)',
+    height: 1,
+    sizes: {},
+  })
+  const html = await render(between(forged), [media(7)])
   assert.match(html, /<img src="https:\/\/site\.example\.test\/api\/media\/file\/p7\.webp"/)
+  assert.doesNotMatch(html, /forged|onerror/)
+  // An object whose id the read did not return (deleted media) renders nothing.
+  assert.equal(await render(between(forged), []), await withoutPictures())
+  assert.deepEqual(I.uploadIds(body(upload(forged), upload({ id: '8' }), upload({}))), [7, '8'])
+})
+
+test('width and height reach the HTML only as positive whole numbers', async () => {
+  const doc = media(9, { width: '1" onerror="alert(1)', height: 768, sizes: {} })
+  const html = await render(between(9), [doc])
+  assert.doesNotMatch(html, /onerror|width=/)
+  assert.match(await render(between(10), [media(10, { width: '1408', height: 767.6 })]), / width="1408" height="768" /)
 })
 
 test('deleted media (no doc for the id) renders nothing', async () => {
@@ -106,7 +124,7 @@ test('a variant on a foreign http host is left out of srcset, not the picture', 
   assert.match(html, / 600w, \S+ 1400w, /)
 })
 
-test('uploadIds lists each unpopulated picture once, at any nesting', () => {
+test('uploadIds lists each picture once, at any nesting', () => {
   const content = body(
     upload(916),
     para('x'),
@@ -114,7 +132,7 @@ test('uploadIds lists each unpopulated picture once, at any nesting', () => {
     upload(916),
     { type: 'list', children: [{ type: 'listitem', children: [upload('917')] }] },
   )
-  assert.deepEqual(I.uploadIds(content), [916, '917'])
+  assert.deepEqual(I.uploadIds(content), [916, 9, '917'])
   assert.deepEqual(I.uploadIds(null), [])
   assert.deepEqual(I.uploadIds(body(para('x'))), [])
 })
