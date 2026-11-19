@@ -141,8 +141,9 @@ const mediaBlockConverters = (payload: PayloadRequest['payload'], uploads: Media
  */
 const contentHTML = async (post: Post, payload: PayloadRequest['payload']): Promise<string> => {
   if (!post.content) return ''
-  // Payload never populates in-text pictures, so every one in the body is read
-  // here in one query; a failed read serves the article without them.
+  // Payload never populates in-text pictures (UploadFeature maxDepth 0), so
+  // every one in the body is read here in one query; a failed read serves the
+  // article without them.
   const uploads = await readInTextImages(
     uploadIds(post.content),
     async (ids) =>
