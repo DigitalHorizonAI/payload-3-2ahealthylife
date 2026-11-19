@@ -17,6 +17,7 @@ import type { Category, Media, Post } from '@/payload-types'
 
 import { convertLexicalToHTMLAsync } from '@payloadcms/richtext-lexical/html-async'
 
+import { type MediaDoc, readInTextImages, uploadConverter, uploadIds } from '@/lib/inTextImages'
 import { getDocPath } from '@/utilities/collectionPrefixMap'
 import { getPublicSiteURL } from '@/utilities/getURL'
 
@@ -104,14 +105,16 @@ const escape = (s: string) =>
   s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
 
 /**
- * Images inside article bodies are `mediaBlock` nodes, so the stock converters
- * emit nothing for them. Renders each as a plain figure — the consumers of this
- * API are a React site and two Deno edge functions, none of which can run
- * Payload's own React block components.
+ * Images inside article bodies are `mediaBlock` nodes (older articles) or
+ * in-text `upload` nodes (new ones), and the stock converters emit nothing for
+ * either. Renders each as a plain figure — the consumers of this API are a
+ * React site and two Deno edge functions, none of which can run Payload's own
+ * React block components.
  */
-const mediaBlockConverters = (payload: PayloadRequest['payload']) =>
+const mediaBlockConverters = (payload: PayloadRequest['payload'], uploads: MediaDoc[]) =>
   (({ defaultConverters }) => ({
     ...defaultConverters,
+    upload: uploadConverter(uploads, getPublicSiteURL()),
     blocks: {
       mediaBlock: async ({ node }) => {
         let media = (node.fields as { media?: unknown })?.media
@@ -138,8 +141,23 @@ const mediaBlockConverters = (payload: PayloadRequest['payload']) =>
  */
 const contentHTML = async (post: Post, payload: PayloadRequest['payload']): Promise<string> => {
   if (!post.content) return ''
+  // Payload never populates in-text pictures, so every one in the body is read
+  // here in one query; a failed read serves the article without them.
+  const uploads = await readInTextImages(
+    uploadIds(post.content),
+    async (ids) =>
+      (
+        await payload.find({
+          collection: 'media',
+          where: { id: { in: ids } },
+          depth: 0,
+          pagination: false,
+        })
+      ).docs,
+    payload.logger,
+  )
   return convertLexicalToHTMLAsync({
-    converters: mediaBlockConverters(payload),
+    converters: mediaBlockConverters(payload, uploads),
     data: post.content as Parameters<typeof convertLexicalToHTMLAsync>[0]['data'],
   })
 }
