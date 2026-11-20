@@ -1,4 +1,4 @@
-import type { APIRequestContext, Page } from '@playwright/test'
+import type { APIRequestContext, Page, Response } from '@playwright/test'
 
 import { expect, test } from '@playwright/test'
 import pg from 'pg'
@@ -134,6 +134,31 @@ const openEditor = async (page: Page, baseURL: string, id: number) => {
   return editor
 }
 
+/** The next autosave PATCH response whose request body passes `has`. */
+const autosave = (page: Page, has = (_body: string) => true) =>
+  page.waitForResponse(
+    (r) =>
+      r.request().method() === 'PATCH' &&
+      /\/api\/posts\/\d+\?.*autosave=true/.test(r.url()) &&
+      has(r.request().postData() ?? ''),
+  )
+
+/**
+ * Clicks Publish once the autosave of the last edit has landed, and returns the
+ * publish PATCH response. While an autosave runs, Payload disables Publish, and a
+ * click that lands then sends nothing.
+ */
+const publishAfter = async (page: Page, autosaved: Promise<Response>) => {
+  expect((await autosaved).ok()).toBe(true)
+  const button = page.getByRole('button', { name: 'Publish changes' })
+  await expect(button).toBeEnabled()
+  const saved = page.waitForResponse(
+    (r) => r.request().method() === 'PATCH' && /\/api\/posts\/\d+\?(?!.*autosave=true)/.test(r.url()),
+  )
+  await button.click()
+  return saved
+}
+
 // The editor's card around each picture node.
 const CARD = '.LexicalEditorTheme__upload'
 
@@ -172,15 +197,10 @@ test('one typed character and one Publish keep every picture', async ({ page, re
   const editor = await openEditor(page, baseURL!, id)
   await editor.getByText(FIRST_WORDS).first().click()
   await page.keyboard.press('End')
+  // The open page writes nothing until this keystroke, so its first autosave is the edit.
+  const autosaved = autosave(page)
   await page.keyboard.type('Z')
-
-  const publish = page.getByRole('button', { name: 'Publish changes' })
-  await expect(publish).toBeEnabled()
-  const saved = page.waitForResponse(
-    (r) => r.request().method() === 'PATCH' && /\/api\/posts\/\d+\?(?!.*autosave=true)/.test(r.url()),
-  )
-  await publish.click()
-  expect((await saved).ok()).toBe(true)
+  expect((await publishAfter(page, autosaved)).ok()).toBe(true)
 
   const after = await storedContent(id)
   for (const [where, content] of Object.entries(after)) {
@@ -203,15 +223,12 @@ test('a picture inserted through the editor is stored as a media id', async ({ p
   await page.locator('#slash-menu-popup__item-upload').click()
 
   const drawer = page.locator('.drawer__content').last()
+  // The typing above autosaves too; wait for the autosave that holds the fourth picture.
+  const autosaved = autosave(page, (body) => body.split('"type":"upload"').length - 1 === 4)
   // Files outlive a database reset, so the name may carry a -N suffix.
   await drawer.getByText(/^editor-upload-e2e-3(-\d+)?\.png$/).first().click()
   await expect(editor.locator(CARD)).toHaveCount(4)
-
-  const saved = page.waitForResponse(
-    (r) => r.request().method() === 'PATCH' && /\/api\/posts\/\d+\?(?!.*autosave=true)/.test(r.url()),
-  )
-  await page.getByRole('button', { name: 'Publish changes' }).click()
-  expect((await saved).ok()).toBe(true)
+  expect((await publishAfter(page, autosaved)).ok()).toBe(true)
 
   const { post, version } = await storedContent(id)
   for (const content of [post, version]) {
