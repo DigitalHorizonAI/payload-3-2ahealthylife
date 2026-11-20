@@ -9,6 +9,7 @@ import {
   InlineToolbarFeature,
   OrderedListFeature,
   UnorderedListFeature,
+  UploadFeature,
   lexicalEditor,
 } from '@payloadcms/richtext-lexical'
 
@@ -118,6 +119,14 @@ export const Posts: CollectionConfig<'posts'> = {
                     FixedToolbarFeature(),
                     InlineToolbarFeature(),
                     HorizontalRuleFeature(),
+                    // Articles from the SEO tool carry in-text pictures as
+                    // `upload` nodes; without this node type the admin cannot
+                    // open their body at all. maxDepth 0: reads keep each
+                    // picture as its bare media id, so API responses stay the
+                    // same size and a read-then-save cannot write whole media
+                    // docs into `content`. The editor fetches each picture
+                    // itself, and /api/articles renders them in one query.
+                    UploadFeature({ maxDepth: 0 }),
                   ]
                 },
               }),

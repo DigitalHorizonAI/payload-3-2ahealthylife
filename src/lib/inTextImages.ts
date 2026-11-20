@@ -1,9 +1,9 @@
 /**
  * In-text pictures: Lexical `upload` nodes in an article body.
  *
- * The Posts editor registers no UploadFeature, so Payload never populates
- * these nodes: the value stays a bare media id at any depth, and the stock
- * `upload` converter renders nothing for a bare id. The endpoint reads every
+ * The Posts editor registers UploadFeature with maxDepth 0, so Payload never
+ * populates these nodes: the value stays a bare media id at any depth, and the
+ * stock `upload` converter renders nothing for a bare id. The endpoint reads every
  * picture of an article in one media query and renders them with this.
  *
  * No `@/` imports, so `node --test` can load it directly.
